@@ -36,6 +36,7 @@ WPF Serial Port Monitor is a Windows Presentation Foundation (WPF) application d
    After building the project, you can run the application directly from Visual Studio or by executing the compiled binary.
 
 ## Usage
+### If you use Arduino for test serial, you can use the code in Folder ArduinoEchoTestCode
 
 1. **Select a Serial Port**
 
