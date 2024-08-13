@@ -59,5 +59,5 @@ Contributions are welcome! If you have suggestions or improvements, feel free to
 
 ## Contact
 
-For questions or feedback, please reach out to the repository maintainer at [email@example.com](mailto:email@example.com).
+For questions or feedback, please reach out to the repository maintainer at [nly@hcmiu.edu.vn](mailto:nly@hcmiu.edu.vn).
 
