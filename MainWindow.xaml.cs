@@ -150,12 +150,14 @@ namespace WpfSerialPortMonitor
             //SerialData.Text = "";
         }
 
-        public void SerialCmdSend(string data)
+        public void SerialCmdSend(String data)
         {
             if (serial.IsOpen)
             {
                 try
                 {
+                    data += "\r\n";
+                    //data = "hello\r\n";
                     // Send the binary data out the port
                     byte[] hexstring = Encoding.ASCII.GetBytes(data);
                     //There is a intermitant problem that I came across
@@ -164,16 +166,27 @@ namespace WpfSerialPortMonitor
                     //I expect this id due to PC timing issues ad they are
                     //not directley connected to the COM port the solution
                     //Is a ver small 1 millisecound delay between chracters
-                    foreach (byte hexval in hexstring)
-                    {
-                        byte[] _hexval = new byte[] { hexval }; // need to convert byte to byte[] to write
-                        serial.Write(_hexval, 0, 1);
-                        //Thread.Sleep(1);
-                    }
+
+                    serial.Write(Encoding.ASCII.GetBytes(data), 0, Encoding.ASCII.GetBytes(data).Length);
+                    //serial.Write(Encoding.ASCII.GetBytes("test"), 0, 4);
+                    //serial.Write(Encoding.ASCII.GetBytes("test"), 0, 4);
+                    //serial.Write(Encoding.ASCII.GetBytes("hekko"), 0, 4);
+
+
+                    //foreach (byte hexval in hexstring)
+                    //{
+                    //    byte[] _hexval = new byte[] { hexval }; // need to convert byte to byte[] to write
+                    //    serial.Write(_hexval, 0, 1);
+                    //    Thread.Sleep(1);
+                    //}
+                    //   serial.Write(Encoding.ASCII.GetBytes("hello2\r\n"), 0, 7);
+
+                    //serial.Write(Encoding.ASCII.GetBytes("\r\n"), 0, 2);
                 }
                 catch (Exception ex)
                 {
                     CMDtextbox.Text = ("Failed to SEND" + data + "\n" + ex + "\n");
+                    Debug.WriteLine("Failed to SEND" + data + "\n" + ex + "\n");
                 }
             }
             else
