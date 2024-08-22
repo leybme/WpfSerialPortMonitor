@@ -12,6 +12,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System;
+using System.Reflection;
 
 namespace WpfSerialPortMonitor
 {
@@ -157,17 +158,12 @@ namespace WpfSerialPortMonitor
                 try
                 {
                     data += "\r\n";
-                    //data = "hello\r\n";
-                    // Send the binary data out the port
-                    byte[] hexstring = Encoding.ASCII.GetBytes(data);
-                    //There is a intermitant problem that I came across
-                    //If I write more than one byte in succesion without a 
-                    //delay the PIC i'm communicating with will Crash
-                    //I expect this id due to PC timing issues ad they are
-                    //not directley connected to the COM port the solution
-                    //Is a ver small 1 millisecound delay between chracters
-
-                    serial.Write(Encoding.ASCII.GetBytes(data), 0, Encoding.ASCII.GetBytes(data).Length);
+                    serial.WriteLine(data);
+                    Thread.Sleep(data.Length);
+                    serial.Write(Encoding.ASCII.GetBytes("@USET USB 1;\r\n"), 0, Encoding.ASCII.GetBytes("@USET USB 1;\r\n").Length);
+                    Thread.Sleep(Encoding.ASCII.GetBytes("@USET USB 1;\r\n").Length);
+                    serial.Write(Encoding.ASCII.GetBytes("@VERSION;\r\n"), 0, Encoding.ASCII.GetBytes("@VERSION;\r\n").Length);
+                    Debug.WriteLine(serial.BytesToWrite);
                     //serial.Write(Encoding.ASCII.GetBytes("test"), 0, 4);
                     //serial.Write(Encoding.ASCII.GetBytes("test"), 0, 4);
                     //serial.Write(Encoding.ASCII.GetBytes("hekko"), 0, 4);
@@ -197,5 +193,20 @@ namespace WpfSerialPortMonitor
 
         }
 
+        private void btnGetVersion_Click(object sender, RoutedEventArgs e)
+        {
+            serial.Write(Encoding.ASCII.GetBytes("@VERSION;\r\n"), 0, Encoding.ASCII.GetBytes("@VERSION;\r\n").Length);
+        }
+
+        private void btnSetUSB_Click(object sender, RoutedEventArgs e)
+        {
+
+            serial.WriteLine("@USET USB 1;\r\n");
+        }
+
+        private void btnSetNormal_Click(object sender, RoutedEventArgs e)
+        {
+            serial.WriteLine("@USET USB 0;\r\n");
+        }
     }
 }
