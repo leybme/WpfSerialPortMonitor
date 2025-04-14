@@ -82,7 +82,8 @@ namespace WpfSerialPortMonitor
                     serial.DataBits = 8;
                     serial.StopBits = StopBits.One;
                     serial.ReadTimeout = 50;
-                    serial.WriteTimeout = 50;
+                    serial.WriteTimeout = 100;
+                   
                     serial.Open();
                     //Settings.Default.COMPORT = Comport.Text;
                     //Settings.Default.Save();
@@ -159,10 +160,6 @@ namespace WpfSerialPortMonitor
                 {
                     data += "\r\n";
                     serial.WriteLine(data);
-                    Thread.Sleep(data.Length);
-                    serial.Write(Encoding.ASCII.GetBytes("@USET USB 1;\r\n"), 0, Encoding.ASCII.GetBytes("@USET USB 1;\r\n").Length);
-                    Thread.Sleep(Encoding.ASCII.GetBytes("@USET USB 1;\r\n").Length);
-                    serial.Write(Encoding.ASCII.GetBytes("@VERSION;\r\n"), 0, Encoding.ASCII.GetBytes("@VERSION;\r\n").Length);
                     Debug.WriteLine(serial.BytesToWrite);
                     //serial.Write(Encoding.ASCII.GetBytes("test"), 0, 4);
                     //serial.Write(Encoding.ASCII.GetBytes("test"), 0, 4);
@@ -195,18 +192,115 @@ namespace WpfSerialPortMonitor
 
         private void btnGetVersion_Click(object sender, RoutedEventArgs e)
         {
-            serial.Write(Encoding.ASCII.GetBytes("@VERSION;\r\n"), 0, Encoding.ASCII.GetBytes("@VERSION;\r\n").Length);
+          //  serial.Write(Encoding.ASCII.GetBytes("[VERSION]\r\n"), 0, Encoding.ASCII.GetBytes("[VERSION]\r\n").Length);
+            safeSerialWrite("[VERSION]\r\n");
         }
 
         private void btnSetUSB_Click(object sender, RoutedEventArgs e)
         {
 
-            serial.WriteLine("@USET USB 1;\r\n");
+            serial.WriteLine("[USET USB 1]\r\n");
         }
 
         private void btnSetNormal_Click(object sender, RoutedEventArgs e)
         {
-            serial.WriteLine("@USET USB 0;\r\n");
+            serial.WriteLine("[USET USB 0]\r\n");
         }
+
+        private void btnSendConfig_Click(object sender, RoutedEventArgs e)
+        {
+            if(tbDeviceID.Text.Length != 0)
+            {
+                String cmd= "[USET DEVICEID " + tbDeviceID.Text + "]\r\n";
+                //serial.WriteLine(cmd);
+                safeSerialWrite(cmd);
+                //Thread.Sleep(cmd.Length);
+                recieveTextBox.Text+=cmd;
+            }
+            if(tbExperimentID.Text.Length != 0)
+            {
+                String cmd = "[USET EXPERIMENTID " + tbExperimentID.Text + "]\r\n";
+                safeSerialWrite(cmd);
+                recieveTextBox.Text += cmd;
+            }
+        }
+
+        private void btnTestSend_Click(object sender, RoutedEventArgs e)
+        {
+
+           // serial.WriteLine("[USET STSTR TLD-1103;b45789a5-41a2-422f-9b9f-e6f36f3d327a;PLT001-AA;1,5,32;1;20;100;100000;1;100,143.84,206.91,297.64,428.13,615.85,885.87,1274.27,1832.98,2636.65,3792.69,5455.59,7847.6,11288.38,16237.77,23357.21,33598.18,48329.3,69519.28,100000;0;A96 1]\r\n");
+            //Task.Run(() => serial.WriteLine("[USET STSTR TLD-1103;b45789a5-41a2-422f-9b9f-e6f36f3d327a;PLT001-AA;1,5,32;1;20;100;100000;1;100,143.84,206.91,297.64,428.13,615.85,885.87,1274.27,1832.98,2636.65,3792.69,5455.59,7847.6,11288.38,16237.77,23357.21,33598.18,48329.3,69519.28,100000;0;A96 1]\r\n"));
+            String data = "[USET SETSTR TLD-1103;b45789a5-41a2-422f-9b9f-e6f36f3d327a;PLT001-AA;1,2,5,32;1;20;100;100000;1;100,143.84,206.91,297.64,428.13,615.85,885.87,1274.27,1832.98,2636.65,3792.69,5455.59,7847.6,11288.38,16237.77,23357.21,33598.18,48329.3,69519.28,100000;0;A96]\r\n";
+            byte[] buffer = Encoding.ASCII.GetBytes(data);
+            int chunkSize = 64; // Adjust chunk size as needed
+            for (int i = 0; i < buffer.Length; i += chunkSize)
+            {
+                int size = Math.Min(chunkSize, buffer.Length - i);
+                serial.Write(buffer, i, size);
+                //convert buffer to string
+                string str = Encoding.ASCII.GetString(buffer, i, size);
+                recieveTextBox.Text += str;
+                Thread.Sleep(size);
+            }
+            
+
+        }
+        private void safeSerialWrite(String data)
+        {
+            try
+            {
+                serial.WriteLine(data);
+                Thread.Sleep(data.Length);  
+            }
+            catch (Exception ex)
+            {
+                if (serial.IsOpen)
+                {
+                    serial.Close();
+                    Connect.Content = "Connect";
+                    SendCMDButton.IsEnabled = false;
+                    CMDtextbox.IsEnabled = false;
+                }
+                CMDtextbox.Text = ("Failed to SEND" + data + "\n" + ex + "\n");
+                Debug.WriteLine("Failed to SEND" + data + "\n" + ex + "\n");
+            }
+        }
+
+        private void btnDeleteFile_Click(object sender, RoutedEventArgs e)
+        {
+            String filename = tbFileName.Text;
+            if (filename.Length != 0)
+            {
+                if(!filename.Contains("RESULTS"))
+                {
+                    filename = "RESULTS/"+filename;
+                }
+                String cmd = "[UCTRL DELETE " + filename + "]\r\n";
+                safeSerialWrite(cmd);
+                recieveTextBox.Text += cmd;
+            }
+        }
+       
+        private void btnGetFile_Click(object sender, RoutedEventArgs e)
+        {
+            String filename = tbFileName.Text;
+            if (filename.Length != 0)
+            {
+                if (!filename.Contains("RESULTS"))
+                {
+                    filename = "RESULTS/" + filename;
+                }
+                String cmd = "[UGET FILE " + filename + "]\r\n";
+                safeSerialWrite(cmd);
+                recieveTextBox.Text += cmd;
+            }
+        }
+
+        private void btnSendFile_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
     }
 }

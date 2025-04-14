@@ -27,8 +27,8 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <ComboBox x:Name="Comport"  Grid.Row="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-                <ComboBox x:Name="Baudrate"  Grid.Row="1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" SelectedIndex="115200">
+                <ComboBox x:Name="Comport"  Grid.Row="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  />
+                <ComboBox x:Name="Baudrate"  Grid.Row="1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" SelectedIndex="4">
                     <ComboBoxItem Content="9600"/>
                     <ComboBoxItem Content="19200"/>
                     <ComboBoxItem Content="38400"/>
@@ -44,7 +44,7 @@
                     <Button x:Name="btnGetVersion" Content="Get Ver" Margin="2" Click="btnGetVersion_Click"/>
                     <Button x:Name="btnSetUSB" Content="Set USB Mode" Margin="2" Click="btnSetUSB_Click"/>
                     <Button x:Name="btnSetNormal" Content="Set Normal Mode" Margin="2" Click="btnSetNormal_Click"/>
-
+                    <Button x:Name="btnTestSend" Content="Test" Margin="2" Click="btnTestSend_Click" />
                 </StackPanel>
             </Grid>
         </GroupBox>
@@ -79,7 +79,14 @@
                     <ComboBoxItem Content="384-well"/>
                 </ComboBox>
             </StackPanel>
-
+            <Button x:Name="btnSendConfig" Content="Send Config" Click="btnSendConfig_Click"/>
+            <StackPanel Orientation="Horizontal" Margin="1">
+                <Label Content="File Name:"/>
+                <TextBox    x:Name="tbFileName" Text="" MinWidth="60" VerticalAlignment="Center" />
+            </StackPanel>
+            <Button x:Name="btnDeleteFile" Click="btnDeleteFile_Click">Delete File</Button>
+            <Button x:Name="btnGetFile" Click="btnGetFile_Click">Get File</Button>
+            <Button x:Name="btnSendFile" Click="btnSendFile_Click">Send File</Button>
         </StackPanel>
     </Grid>
 </Window>
